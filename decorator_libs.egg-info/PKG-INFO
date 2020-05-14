@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: decorator-libs
+Version: 1.1
+Summary: all kinds of decorators
+Home-page: UNKNOWN
+Author: bfzs
+Author-email: m13148804508@163.com
+Maintainer: ydf
+Maintainer-email: m13148804508@163.com
+License: BSD License
+Description: ## 1. pip install decorator_libs
+        
+        ```
+        各种最常用的日常通用不针对具体业务的装饰器大全
+        ```
+Keywords: pysnooper,decorator
+Platform: all
+Classifier: Development Status :: 4 - Beta
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: Implementation
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Software Development :: Libraries
+Description-Content-Type: text/markdown
