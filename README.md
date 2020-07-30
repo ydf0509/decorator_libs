@@ -8,5 +8,10 @@
 
 和非常好玩但难实现的装饰器
 例如where_is_it_called和pysnooper_click_able 装饰器。
+
+上下文管理器：
+自动捕获错误的
+自动统计代码片段消耗时间的
+redis分布式锁上下文
 ```
 
