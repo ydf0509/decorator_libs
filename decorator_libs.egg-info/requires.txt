@@ -2,3 +2,4 @@ nb_log
 pysnooper
 pysnooper_click_able
 tomorrow3
+flask

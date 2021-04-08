@@ -11,7 +11,7 @@ print(filepath)
 
 setup(
     name='decorator_libs',  #
-    version="1.1",
+    version="1.2",
     description=(
         'all kinds of decorators'
     ),
@@ -42,7 +42,8 @@ setup(
     install_requires=['nb_log',
                       'pysnooper',
                       'pysnooper_click_able',
-                      'tomorrow3'
+                      'tomorrow3',
+                      'flask'
                       ]
 )
 """
@@ -50,7 +51,7 @@ setup(
 python setup.py sdist upload -r pypi
 
 
-python setup.py sdist & twine upload dist/decorator_libs-1.1.tar.gz
+python setup.py sdist & twine upload dist/decorator_libs-1.2.tar.gz
 
 
 
