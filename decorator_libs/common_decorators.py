@@ -3,15 +3,11 @@
 这里面是常规的装饰器，实现简单
 """
 
-import base64
 import copy
-import random
 import warnings
 from multiprocessing import Process
-
-from contextlib import contextmanager
+import uuid
 import functools
-import json
 import os
 import sys
 import threading
@@ -21,7 +17,7 @@ import unittest
 from functools import wraps
 from flask import request as flask_request
 
-from nb_log import LogManager, nb_print
+from nb_log import LogManager, nb_print, LoggerMixin
 
 os_name = os.name
 handle_exception_log = LogManager('function_error').get_logger_and_add_handlers()
@@ -299,12 +295,10 @@ class FunctionResultCacher:
                     cls.func_result_dict.clear()
 
                 key = cls._make_arguments_to_key(args, kwargs)
-                if (fun, key) in cls.func_result_dict and time.time() - cls.func_result_dict[(fun, key)][
-                    1] < cache_time:
+                if (fun, key) in cls.func_result_dict and time.time() - cls.func_result_dict[(fun, key)][1] < cache_time:
                     return cls.func_result_dict[(fun, key)][0]
                 else:
-                    if (fun, key) in cls.func_result_dict and time.time() - cls.func_result_dict[(fun, key)][
-                        1] < cache_time:
+                    if (fun, key) in cls.func_result_dict and time.time() - cls.func_result_dict[(fun, key)][1] < cache_time:
                         return cls.func_result_dict[(fun, key)][0]
                     else:
                         cls.logger.debug('函数 [{}] 此次不能使用缓存'.format(fun.__name__))
@@ -336,6 +330,42 @@ def deprecated(fn):
         return fn(*args, **kwargs)
 
     return wrapper
+
+
+class RedisDistributedLockContextManager(LoggerMixin):
+    """
+    分布式redis锁上下文管理.
+    """
+
+    def __init__(self, redis_client, redis_lock_key, expire_seconds=30):
+        self.redis_client = redis_client
+        self.redis_lock_key = redis_lock_key
+        self._expire_seconds = expire_seconds
+        self.identifier = str(uuid.uuid4())
+        self.has_aquire_lock = False
+
+    # noinspection PyProtectedMember,PyUnresolvedReferences
+    def __enter__(self):
+        self._line = sys._getframe().f_back.f_lineno  # 调用此方法的代码的函数
+        self._file_name = sys._getframe(1).f_code.co_filename  # 哪个文件调了用此方法
+        self.redis_client.set(self.redis_lock_key, value=self.identifier, ex=self._expire_seconds, nx=True)
+        identifier_in_redis = self.redis_client.get(self.redis_lock_key)
+        if identifier_in_redis and identifier_in_redis.decode() == self.identifier:
+            self.has_aquire_lock = True
+        return self
+
+    def __bool__(self):
+        return self.has_aquire_lock
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.has_aquire_lock:
+            self.redis_client.delete(self.redis_lock_key)
+        if self.has_aquire_lock:
+            log_msg = f'\n"{self._file_name}:{self._line}" 这行代码获得了redis锁 {self.redis_lock_key}'
+            self.logger.info(log_msg)
+        else:
+            log_msg = f'\n"{self._file_name}:{self._line}" 这行代码没有获得redis锁 {self.redis_lock_key}'
+            self.logger.warning(log_msg)
 
 
 def run_in_new_thread(f):
