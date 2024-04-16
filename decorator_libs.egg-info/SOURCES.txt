@@ -9,3 +9,4 @@ decorator_libs.egg-info/SOURCES.txt
 decorator_libs.egg-info/dependency_links.txt
 decorator_libs.egg-info/requires.txt
 decorator_libs.egg-info/top_level.txt
+tests/test_snooper.py

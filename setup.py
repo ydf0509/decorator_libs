@@ -11,7 +11,7 @@ print(filepath)
 
 setup(
     name='decorator_libs',  #
-    version="1.2",
+    version="1.3",
     description=(
         'all kinds of decorators'
     ),
@@ -51,7 +51,7 @@ setup(
 python setup.py sdist upload -r pypi
 
 
-python setup.py sdist & twine upload dist/decorator_libs-1.2.tar.gz
+python setup.py sdist & twine upload dist/decorator_libs-1.3.tar.gz
 
 
 

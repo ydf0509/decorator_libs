@@ -2,7 +2,7 @@
 """
 这里面是常规的装饰器，实现简单
 """
-
+import abc
 import copy
 import warnings
 from multiprocessing import Process
@@ -143,7 +143,7 @@ def synchronized(func):
     return lock_func
 
 
-def singleton(cls):
+def singleton(cls):  # 代码补全不好
     """
     单例模式装饰器,新加入线程锁，更牢固的单例模式，主要解决多线程如100线程同时实例化情况下可能会出现三例四例的情况,实测。
     """
@@ -158,6 +158,58 @@ def singleton(cls):
             return _instance[cls]
 
     return _singleton
+
+
+class SingletonMeta(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class SingletonBaseCall(metaclass=SingletonMeta):
+    """
+    单例基类。任何继承自这个基类的子类都会自动成为单例。
+
+    示例：
+    class MyClass(SingletonBase):
+        pass
+
+    instance1 = MyClass()
+    instance2 = MyClass()
+
+    assert instance1 is instance2  # 实例1和实例2实际上是同一个对象
+    """
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # 可以在此处添加对子类的额外处理，比如检查其是否符合单例要求等
+
+
+class SingletonBaseNew:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # 可以在此处添加对子类的额外处理，比如检查其是否符合单例要求等
+
+class SingletonBaseCustomInit(metaclass=abc.ABCMeta):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+            cls._instance._custom_init(*args, **kwargs)
+        return cls._instance
+
+    def _custom_init(self, *args, **kwargs):
+        raise NotImplemented
 
 
 def flyweight(cls):
