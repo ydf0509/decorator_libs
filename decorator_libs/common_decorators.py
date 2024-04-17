@@ -15,6 +15,8 @@ import time
 import traceback
 import unittest
 from functools import wraps
+from typing import TypeVar
+
 from flask import request as flask_request
 
 from nb_log import LogManager, nb_print, LoggerMixin
@@ -142,8 +144,9 @@ def synchronized(func):
 
     return lock_func
 
+ClSX = TypeVar('CLSX')
 
-def singleton(cls):  # 代码补全不好
+def singleton(cls:ClSX)  -> ClSX: # 代码补全不好
     """
     单例模式装饰器,新加入线程锁，更牢固的单例模式，主要解决多线程如100线程同时实例化情况下可能会出现三例四例的情况,实测。
     """
@@ -511,8 +514,12 @@ class _Test(unittest.TestCase):
             def __init__(self, x):
                 self.x = x
 
+            def fggg(self):
+                print('aaa')
+
         a1 = A(3)
         a2 = A(4)
+        a1.fggg
         self.assertEqual(id(a1), id(a2))
         print(a1.x, a2.x)
 
