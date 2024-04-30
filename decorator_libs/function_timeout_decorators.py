@@ -6,7 +6,10 @@ import threading
 
 # noinspection PyUnusedLocal
 import time
-
+import typing
+import functools
+import time
+import signal
 
 class __KThread(threading.Thread):
     def __init__(self, *args, **kwargs):
@@ -48,7 +51,7 @@ class TIMEOUT_EXCEPTION(Exception):
     pass
 
 
-def timeout(seconds):
+def timeout(seconds:int):
     """超时装饰器，指定超时时间
 
     若被装饰的方法在指定的时间内未返回，则抛出Timeout异常"""
@@ -86,6 +89,38 @@ def timeout(seconds):
         return _
 
     return timeout_decorator
+
+
+
+
+def timeout_linux(timeout: int):
+    """
+    这个不需要单独开一个线程来实现超时,但是只适合linux系统,windwos没有 signal.SIGALRM
+    """
+    def _timeout_linux(func, ):
+        """装饰器，为函数添加超时功能"""
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            def _timeout_handler(signum, frame):
+                """超时处理函数，当接收到信号时抛出异常"""
+                raise TimeoutError(f"Function: {func} params: {args}, {kwargs} ,execution timed out: {timeout}")
+
+            # 设置超时信号处理器
+            signal.signal(signal.SIGALRM, _timeout_handler)  # 只适合linux 的 timout
+            # 启动一个定时器，超时后发送信号
+            signal.alarm(timeout)
+
+            try:
+                return func(*args, **kwargs)
+            finally:
+                # 执行完毕记得取消定时器
+                signal.alarm(0)  # 关闭定时器
+
+        return wrapper
+
+    return _timeout_linux
+
 
 if __name__ == '__main__':
     @timeout(3)

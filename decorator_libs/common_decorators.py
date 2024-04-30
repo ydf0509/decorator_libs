@@ -146,7 +146,7 @@ def synchronized(func):
 
 ClSX = TypeVar('CLSX')
 
-def singleton(cls:ClSX)  -> ClSX: # 代码补全不好
+def singleton(cls:ClSX)  -> ClSX:
     """
     单例模式装饰器,新加入线程锁，更牢固的单例模式，主要解决多线程如100线程同时实例化情况下可能会出现三例四例的情况,实测。
     """
